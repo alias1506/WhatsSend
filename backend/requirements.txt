@@ -1,0 +1,4 @@
+pywhatkit==5.4
+selenium==4.38.0
+webdriver-manager==4.0.2
+playwright==1.45.0

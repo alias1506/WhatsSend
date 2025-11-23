@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-whatsapp-teal: #008069;
+  --color-whatsapp-light: #25D366;
+  --color-whatsapp-bg: #e5ddd5;
+  --color-whatsapp-chat: #dcf8c6;
+}
+
+body {
+  @apply bg-[#e5ddd5] text-gray-900 antialiased;
+  background-image: linear-gradient(to bottom, #00a884 120px, #e5ddd5 120px);
+  min-height: 100vh;
+}
