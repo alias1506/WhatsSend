@@ -1,9 +1,14 @@
 import React, { useState, useRef } from 'react';
 import EmojiPicker from 'emoji-picker-react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import { Send, Clock, Users, MessageSquare, AlertCircle, CheckCircle2, Loader2, Smile, MessageCircle, X } from 'lucide-react';
 
 function App() {
   const [formData, setFormData] = useState({
+    phoneNumber: '',
+    rawNumbers: '', // Added for multi-number input
+    dialCode: '91', // Default to India
     receiverNumbers: '',
     totalMessages: 1,
     delay: 2,
@@ -35,17 +40,24 @@ function App() {
     e.preventDefault();
     setStatus({ type: '', message: '' });
 
-    // Validate phone numbers have country code
-    const numbers = formData.receiverNumbers.split(',').map(num => num.trim()).filter(num => num);
-    const invalidNumbers = numbers.filter(num => !num.startsWith('+'));
+    // Parse phone numbers from raw input
+    const numbers = (formData.rawNumbers || '')
+      .split(',')
+      .map(num => num.trim())
+      .filter(num => num.length > 0);
 
-    if (invalidNumbers.length > 0) {
-      setStatus({
-        type: 'error',
-        message: `Phone numbers must include country code (e.g., +1234567890). Invalid: ${invalidNumbers.join(', ')}`
-      });
+    if (numbers.length === 0) {
+      setStatus({ type: 'error', message: 'Please enter at least one phone number' });
       return;
     }
+
+    // Format numbers with country code
+    const formattedNumbers = numbers.map(num => {
+      // If number starts with +, assume it has country code
+      if (num.startsWith('+')) return num;
+      // Otherwise prepend selected dial code
+      return `+${formData.dialCode}${num}`;
+    });
 
     setLoading(true);
 
@@ -57,7 +69,12 @@ function App() {
       const response = await fetch(`http://${hostname}:3001/api/send-message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          receiverNumbers: formattedNumbers.join(','), // Match backend expectation
+          totalMessages: parseInt(formData.totalMessages), // Match backend expectation
+          delay: parseInt(formData.delay),
+          message: formData.message
+        }),
         signal: abortControllerRef.current.signal
       });
 
@@ -70,7 +87,6 @@ function App() {
       }
     } catch (error) {
       if (error.name === 'AbortError') {
-        // Request was cancelled
         setStatus({ type: 'error', message: 'Message sending cancelled' });
       } else {
         setStatus({ type: 'error', message: 'Network error. Ensure backend is running.' });
@@ -149,20 +165,53 @@ function App() {
           <div className="flex-1 p-4 md:p-6 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-5">
             <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto pb-20 md:pb-0">
 
-              {/* Numbers Input */}
+              {/* Numbers Input with Inline Country Selector */}
               <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100">
                 <label className="block text-xs font-bold text-[#008069] uppercase mb-2">
                   Receiver Numbers
                 </label>
-                <input
-                  type="text"
-                  name="receiverNumbers"
-                  placeholder="+1234567890, +9876543210"
-                  required
-                  className="w-full text-gray-700 placeholder-gray-400 outline-none border-b border-gray-200 focus:border-[#008069] py-1 transition-colors text-sm md:text-base"
-                  value={formData.receiverNumbers}
-                  onChange={handleChange}
-                />
+
+                {/* Custom Wrapper for Country Selector + Multi-Number Input */}
+                <div className="phone-input-custom">
+                  {/* Country Selector (Input hidden via CSS) */}
+                  <PhoneInput
+                    defaultCountry="in"
+                    value={formData.country || '+91'}
+                    onChange={(phone, meta) => {
+                      if (meta.country) {
+                        setFormData(prev => ({
+                          ...prev,
+                          country: phone, // Keep track of phone value for selector
+                          dialCode: meta.country.dialCode
+                        }));
+                      }
+                    }}
+                    inputStyle={{ display: 'none' }} // Hide the library's input
+                    countrySelectorStyleProps={{
+                      buttonClassName: 'country-selector-button'
+                    }}
+                  />
+
+                  {/* Static Dial Code Display */}
+                  <span className="text-gray-500 font-medium mr-2 select-none">
+                    +{formData.dialCode || '91'}
+                  </span>
+
+                  {/* Custom Multi-Number Input */}
+                  <input
+                    type="text"
+                    value={formData.rawNumbers || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only numbers, commas, and spaces
+                      if (/^[0-9, ]*$/.test(value)) {
+                        setFormData(prev => ({ ...prev, rawNumbers: value }));
+                      }
+                    }}
+                    className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm md:text-base"
+                    placeholder="9876543210, 9876543211"
+                  />
+                </div>
                 <p className="text-[10px] text-gray-400 mt-1">Separate multiple numbers with commas</p>
               </div>
 
@@ -170,7 +219,7 @@ function App() {
               <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100">
                   <label className="block text-xs font-bold text-[#008069] uppercase mb-2">
-                    Count
+                    Message Count
                   </label>
                   <input
                     type="number"

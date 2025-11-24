@@ -20,12 +20,13 @@
 ## 🌟 Features
 
 - ✨ **Modern UI/UX** - WhatsApp-inspired design with responsive layout
-- 📱 **Bulk Messaging** - Send messages to multiple contacts simultaneously
+- 🏳️ **Smart Country Selector** - 3D-styled dropdown that auto-appends country codes
+- 📱 **Multi-Number Support** - Send to multiple contacts at once (comma-separated)
+- 🔒 **Smart Validation** - Input field restricts typing to numbers and commas only
 - 🔄 **Message Repetition** - Configure how many times to send each message
 - ⏱️ **Smart Delays** - Customizable delays between messages to avoid spam detection
 - 😊 **Emoji Support** - Built-in emoji picker for expressive messaging
 - 🌐 **Network Access** - Access the app from any device on your local network
-- 🔒 **Session Persistence** - Stay logged in to WhatsApp Web across sessions
 - 📊 **Real-time Status** - Get instant feedback on message delivery status
 
 ## 🚀 Quick Start
@@ -63,7 +64,8 @@ You'll see the local and network URLs in your terminal.
 
 1. Open the local URL shown in your terminal
 2. Fill in the form:
-   - **Receiver Numbers**: Enter with country code (e.g., `+1234567890`)
+   - **Receiver Numbers**: Select country, then type numbers separated by commas
+     - Example: `9876543210, 9988776655`
    - **Count**: `1`
    - **Delay**: `2`
    - **Message**: `Hello from WhatsSend! 👋`
@@ -139,13 +141,15 @@ To access the app from other devices on your network:
 
 1. **Launch the app** using `npm run dev`
 2. **Fill in the form**:
-   - **Receiver Numbers**: Enter phone numbers with country code (e.g., `+1234567890`)
+   - **Country**: Select your country from the dropdown (e.g., 🇮🇳 India +91).
+   - **Receiver Numbers**: Enter one or more phone numbers separated by commas.
+     - *Note: You don't need to type the country code again; the app adds it automatically!*
+     - Valid input: `9876543210, 8877665544`
    - **Count**: Number of times to send the message
    - **Delay**: Seconds to wait between messages
    - **Message**: Your message text (with emoji support!)
 3. **Click "Send Now"**
 4. **WhatsApp Web will open** in your default browser
-5. **Log in to WhatsApp Web** if not already logged in
 6. **Messages will be sent automatically**
 
 ### Pro Tips
@@ -162,6 +166,7 @@ To access the app from other devices on your network:
 - **Vite** - Build tool and dev server
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **Lucide React** - Icon library
+- **react-international-phone** - Smart phone input with country selector
 - **emoji-picker-react** - Emoji picker component
 
 ### Backend
@@ -188,7 +193,7 @@ WhatsSend/
 │   │   └── send_message.py   # WhatsApp message sender
 │   └── requirements.txt      # Python dependencies
 ├── public/                    # Static assets
-│   └── favicon.svg           # App icon
+│   └── message-send.svg      # App icon
 ├── .venv/                    # Python virtual environment
 ├── chrome_data/              # WhatsApp Web session data (auto-generated)
 ├── package.json              # Node.js dependencies
@@ -262,44 +267,6 @@ This tool is for educational purposes only. Use responsibly and in accordance wi
 - [React](https://reactjs.org/) - UI framework
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
 - [Vite](https://vitejs.dev/) - Build tool
-
----
-
-## 📝 Development Notes
-
-### Project Cleanup & Restructuring
-
-#### Changes Made
-
-**Removed Files:**
-- `PyWhatKit_DB.txt` - Old library log file (not needed with Playwright)
-- `QUICKSTART.md` - Content merged into this README
-
-**Backend Restructuring:**
-Created `backend/` folder to organize all backend-related code:
-- Moved `scripts/` → `backend/scripts/`
-- Moved `server/` → `backend/server/`
-- Moved `requirements.txt` → `backend/requirements.txt`
-
-**Updated Files:**
-- `package.json` - Updated server path
-- `backend/server/server.js` - Updated script and venv paths
-- `.gitignore` - Added `PyWhatKit_DB.txt`
-
-**Benefits:**
-- Cleaner project structure
-- Clear separation between frontend and backend
-- Easier to maintain and scale
-- Better organization for deployment
-
-#### Migration Notes
-
-For existing installations:
-1. Reinstall Python dependencies: `pip install -r backend/requirements.txt`
-2. No changes needed for Node.js dependencies
-3. Start the app as usual: `npm run dev`
-
-All functionality remains identical - just better organized!
 
 ---
 
