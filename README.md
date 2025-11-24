@@ -91,7 +91,7 @@ You'll see the local and network URLs in your terminal.
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/WhatsSend.git
+git clone https://github.com/alias1506/WhatsSend.git
 cd WhatsSend
 ```
 
